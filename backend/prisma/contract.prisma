@@ -5,6 +5,7 @@ model User {
   email     String             @unique
   username  String?
   name      String?
+  passwordHash String
   createdAt DateTime           @default(now()) @onCreate(now())
   updatedAt temporal.UpdatedAt
 }
