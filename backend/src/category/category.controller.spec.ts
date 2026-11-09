@@ -1,20 +1,18 @@
-import { Test, TestingModule } from '@nestjs/testing';
+import { Test, type TestingModule } from '@nestjs/testing';
 import { CategoryController } from './category.controller.js';
 import { CategoryService } from './category.service.js';
+import { AuthGuard } from '../auth/auth.guard.js';
 
 describe('CategoryController', () => {
-  let controller: CategoryController;
-
-  beforeEach(async () => {
+  it('é criado com o serviço de categorias', async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [CategoryController],
-      providers: [CategoryService],
-    }).compile();
+      providers: [{ provide: CategoryService, useValue: {} }],
+    })
+      .overrideGuard(AuthGuard)
+      .useValue({ canActivate: vi.fn(() => true) })
+      .compile();
 
-    controller = module.get<CategoryController>(CategoryController);
-  });
-
-  it('should be defined', () => {
-    expect(controller).toBeDefined();
+    expect(module.get(CategoryController)).toBeDefined();
   });
 });

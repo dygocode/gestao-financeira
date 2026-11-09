@@ -1,20 +1,22 @@
-import { Test, TestingModule } from '@nestjs/testing';
+import { ConfigService } from '@nestjs/config';
+import { Test, type TestingModule } from '@nestjs/testing';
 import { AuthController } from './auth.controller.js';
+import { AuthGuard } from './auth.guard.js';
 import { AuthService } from './auth.service.js';
 
 describe('AuthController', () => {
-  let controller: AuthController;
-
-  beforeEach(async () => {
+  it('é criado com as dependências de autenticação', async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [AuthController],
-      providers: [AuthService],
-    }).compile();
+      providers: [
+        { provide: AuthService, useValue: {} },
+        { provide: ConfigService, useValue: { get: vi.fn() } },
+      ],
+    })
+      .overrideGuard(AuthGuard)
+      .useValue({ canActivate: vi.fn(() => true) })
+      .compile();
 
-    controller = module.get<AuthController>(AuthController);
-  });
-
-  it('should be defined', () => {
-    expect(controller).toBeDefined();
+    expect(module.get(AuthController)).toBeDefined();
   });
 });
