@@ -1,0 +1,1 @@
+import type{Route}from"./+types/transaction-edit";import{TransactionFormPage}from"~/modules/transactions/pages/transaction-form-page";export function meta({}:Route.MetaArgs){return[{title:"Editar transação | Gestão Financeira"}]};export default function EditTransaction(){return <TransactionFormPage mode="edit"/>}

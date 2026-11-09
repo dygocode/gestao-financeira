@@ -2,6 +2,17 @@
 .env
 /node_modules/
 
+# dotenv environment variable files
+.env
+.env.development
+.env.development.local
+.env.production
+.env.production.local
+.env.test.local
+.env.local
+
 # React Router
 /.react-router/
 /build/
+/.playwright-cli/
+/output/playwright/

@@ -1,0 +1,1 @@
+import type{Route}from"./+types/transaction-new";import{TransactionFormPage}from"~/modules/transactions/pages/transaction-form-page";export function meta({}:Route.MetaArgs){return[{title:"Nova transação | Gestão Financeira"}]};export default function NewTransaction(){return <TransactionFormPage mode="create"/>}
