@@ -7,16 +7,42 @@ model User {
   createdAt    DateTime           @default(now()) @onCreate(now())
   updatedAt    temporal.UpdatedAt
   categories   Category[]
+  transactions Transaction[]
 }
 
 model Category {
+  id           Int                @id @default(autoincrement())
+  name         String
+  description  String?
+  userId       Int
+  user         User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt    DateTime           @default(now()) @onCreate(now())
+  updatedAt    temporal.UpdatedAt
+  transactions Transaction[]
+
+  @@index([userId])
+}
+
+enum TransactionType {
+  INCOME
+  EXPENSE
+}
+
+model Transaction {
   id          Int                @id @default(autoincrement())
   name        String
   description String?
+  amount      NumericString(14, 2)
+  date        DateTime
+  type        TransactionType
+  categoryId  Int
+  category    Category           @relation(fields: [categoryId], references: [id], onDelete: Restrict)
   userId      Int
   user        User               @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt   DateTime           @default(now()) @onCreate(now())
   updatedAt   temporal.UpdatedAt
 
   @@index([userId])
+  @@index([categoryId])
+  @@index([date])
 }
