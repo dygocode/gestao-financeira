@@ -62,13 +62,6 @@
                     "precision": 3
                   }
                 }
-              },
-              "username": {
-                "nullable": true,
-                "type": {
-                  "codecId": "pg/text@1",
-                  "kind": "scalar"
-                }
               }
             },
             "relations": {},
@@ -91,9 +84,6 @@
                 },
                 "updatedAt": {
                   "column": "updatedAt"
-                },
-                "username": {
-                  "column": "username"
                 }
               },
               "namespaceId": "public",
@@ -154,11 +144,6 @@
                   "typeParams": {
                     "precision": 3
                   }
-                },
-                "username": {
-                  "codecId": "pg/text@1",
-                  "dataType": "pg/text",
-                  "nullable": true
                 }
               },
               "foreignKeys": [],
@@ -182,7 +167,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "5660bbc9dd6e08a2a73a277f41dc16ac630a969396d2a04520854bea0f79a0b2"
+    "storageHash": "bd9aa9665d85a46ec31848d6fea125ac14cffc2dd726e7e3e1b9e3ebbbb01c48"
   },
   "execution": {
     "executionHash": "9a5883a46a0f8f232598bc988951650620bebba27bb6d25c01513cb5e3fd94b9",

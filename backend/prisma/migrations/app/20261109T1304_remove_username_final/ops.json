@@ -1,0 +1,52 @@
+[
+  {
+    "id": "dropColumn.User.username",
+    "label": "Drop column \"username\" from \"User\"",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "username",
+        "table": "User"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"username\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "User",
+          "username"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"username\" on \"User\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop column \"username\"",
+        "sql": "ALTER TABLE \"public\".\"User\" DROP COLUMN \"username\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"username\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "User",
+          "username"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "column \"username\" on \"User\""
+        }
+      }
+    ]
+  }
+]

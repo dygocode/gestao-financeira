@@ -1,11 +1,9 @@
 // use prisma-8
-
 model User {
-  id        Int                @id @default(autoincrement())
-  email     String             @unique
-  username  String?
-  name      String?
+  id           Int                @id @default(autoincrement())
+  email        String             @unique
+  name         String?
   passwordHash String
-  createdAt DateTime           @default(now()) @onCreate(now())
-  updatedAt temporal.UpdatedAt
+  createdAt    DateTime           @default(now()) @onCreate(now())
+  updatedAt    temporal.UpdatedAt
 }

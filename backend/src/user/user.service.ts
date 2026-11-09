@@ -9,7 +9,7 @@ export class UserService {
 
   async findById(id: number) {
     return this.prisma.orm.public.User.whereUnique({ id })
-      .select('id', 'email', 'username', 'name', 'createdAt', 'updatedAt')
+      .select('id', 'email', 'name', 'createdAt', 'updatedAt')
       .first();
   }
 
@@ -18,7 +18,6 @@ export class UserService {
       .select(
         'id',
         'email',
-        'username',
         'name',
         'passwordHash',
         'createdAt',
@@ -35,7 +34,6 @@ export class UserService {
     return this.prisma.orm.public.User.select(
       'id',
       'email',
-      'username',
       'name',
       'createdAt',
       'updatedAt',
