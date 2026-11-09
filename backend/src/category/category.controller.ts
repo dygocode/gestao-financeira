@@ -17,8 +17,9 @@ import { CurrentUser } from '../auth/current-user.decorator.js';
 import type { AuthenticatedUser } from '../auth/auth.types.js';
 import { CreateCategoryDto } from './dto/create-category.dto.js';
 import { UpdateCategoryDto } from './dto/update-category.dto.js';
+import { CsrfGuard } from '../auth/csrf.guard.js';
 
-@UseGuards(AuthGuard)
+@UseGuards(AuthGuard, CsrfGuard)
 @Controller('categories')
 export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}

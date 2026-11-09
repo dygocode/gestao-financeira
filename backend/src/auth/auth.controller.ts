@@ -17,6 +17,7 @@ import { AUTH_COOKIE_NAME, SESSION_DURATION_MS } from './auth.constants.js';
 import { AuthGuard } from './auth.guard.js';
 import type { AuthenticatedUser } from './auth.types.js';
 import { CurrentUser } from './current-user.decorator.js';
+import { CsrfGuard } from './csrf.guard.js';
 
 @Controller('auth')
 export class AuthController {
@@ -46,6 +47,7 @@ export class AuthController {
 
   @Post('logout')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(AuthGuard, CsrfGuard)
   logout(@Res({ passthrough: true }) response: Response) {
     response.clearCookie(AUTH_COOKIE_NAME, this.cookieOptions);
   }
@@ -58,21 +60,33 @@ export class AuthController {
 
   private sendSession<T>(
     response: Response,
-    session: { accessToken: string; user: T; expiresIn: number },
+    session: {
+      accessToken: string;
+      user: T;
+      expiresIn: number;
+      csrfToken: string;
+    },
   ) {
     response.cookie(AUTH_COOKIE_NAME, session.accessToken, {
       ...this.cookieOptions,
       maxAge: SESSION_DURATION_MS,
     });
 
-    return { user: session.user, expiresIn: session.expiresIn };
+    return {
+      user: session.user,
+      expiresIn: session.expiresIn,
+      csrfToken: session.csrfToken,
+    };
   }
 
   private get cookieOptions(): CookieOptions {
+    const isProduction =
+      this.configService.get<string>('NODE_ENV') === 'production';
+
     return {
       httpOnly: true,
-      secure: this.configService.get<string>('NODE_ENV') === 'production',
-      sameSite: 'lax',
+      secure: isProduction,
+      sameSite: isProduction ? 'none' : 'lax',
       path: '/',
     };
   }

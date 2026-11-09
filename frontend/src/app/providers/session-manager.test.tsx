@@ -13,6 +13,7 @@ describe("SessionManager", () => {
     vi.mocked(authService.session).mockResolvedValue({
       user: { id: 1, email: "admin@fintech.com", name: "Admin" },
       expiresIn: 900,
+      csrfToken: "csrf-token-for-unit-test",
     });
 
     render(<SessionManager><p>Área protegida</p></SessionManager>);
