@@ -7,7 +7,7 @@ export const loginSchema = z.object({
 
 export const registerSchema = loginSchema.extend({
   name: z.string().trim().min(1, "Informe seu nome").max(100, "Use no máximo 100 caracteres"),
-  password: z.string().min(12, "A senha precisa ter pelo menos 12 caracteres").max(128, "Use no máximo 128 caracteres"),
+  password: z.string().min(8, "A senha precisa ter pelo menos 8 caracteres").max(128, "Use no máximo 128 caracteres"),
 });
 
 export type LoginFormData = z.infer<typeof loginSchema>;

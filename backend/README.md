@@ -1,132 +1,306 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Gestão Financeira — API
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+API REST construída com NestJS para autenticação, categorias, transações financeiras e indicadores consolidados. Os dados de negócio são isolados pelo usuário autenticado e persistidos em PostgreSQL por meio do Prisma ORM 8.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Tecnologias
 
-## Description
+- Node.js 22+ e TypeScript strict
+- NestJS 12 com Express
+- PostgreSQL 15+
+- Prisma ORM 8
+- JWT em cookie `HttpOnly`
+- Argon2 para hash de senhas
+- class-validator e class-transformer
+- Vitest, Supertest, Oxlint e Prettier
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Arquitetura
 
-## Project setup
+```text
+src/
+├── auth/          # cadastro, login, logout, sessão e AuthGuard
+├── category/      # CRUD de categorias por usuário
+├── dashboard/     # indicadores financeiros consolidados
+├── prisma/        # provider Nest, cliente e contrato gerado
+├── transaction/   # CRUD de entradas e saídas
+├── user/          # acesso aos usuários
+├── app.module.ts
+└── main.ts
 
-```bash
-$ npm install
+prisma/
+├── contract.prisma
+└── migrations/
 ```
 
-## Compile and run the project
+O fluxo principal segue `Controller → Service → Prisma`. Categorias, transações e dashboard sempre usam o `sub` do JWT como `userId`; IDs enviados pelo cliente não definem o proprietário dos dados.
+
+## Pré-requisitos
+
+- Node.js 22 ou superior
+- npm 10 ou superior
+- Docker com Docker Compose v2, **ou** PostgreSQL 15+ disponível
+
+O ambiente Docker do projeto utiliza PostgreSQL 18.
+
+## Instalação
+
+Na pasta `backend`:
 
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+npm ci
+cp .env.example .env.development
 ```
 
-## Run tests
+`npm ci` instala exatamente as versões registradas no `package-lock.json` e recria o diretório `node_modules`.
+
+## Variáveis de ambiente
+
+Exemplo para desenvolvimento local:
+
+```env
+NODE_ENV=development
+PORT=3100
+JWT_SECRET="troque-por-uma-chave-longa-e-aleatoria"
+CLIENT_ORIGIN="http://localhost:5173"
+DATABASE_URL="postgresql://postgres:postgres@localhost:5432/gestao_financeira"
+SEED_ADMIN_PASSWORD="Demo@123"
+```
+
+| Variável | Obrigatória | Finalidade |
+| --- | --- | --- |
+| `NODE_ENV` | Não | Define comportamento de desenvolvimento/produção e cookie `Secure` |
+| `PORT` | Não | Porta local da API; padrão do projeto: `3100` |
+| `JWT_SECRET` | Sim | Assinatura dos JWTs HS256 |
+| `CLIENT_ORIGIN` | Sim | Origem exata permitida pelo CORS |
+| `DATABASE_URL` | Sim | Conexão PostgreSQL usada pela aplicação, migrations e seed |
+| `SEED_ADMIN_PASSWORD` | Não | Substitui a senha padrão do usuário demo |
+
+Nunca versione arquivos `.env` reais nem reutilize o segredo de exemplo em produção.
+
+## PostgreSQL local
+
+Dentro de `backend`:
 
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+docker compose -f infra/docker-compose.yml up -d
 ```
 
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+Para encerrar sem remover o volume:
 
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+docker compose -f infra/docker-compose.yml down
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+## Prisma e migrations
 
-## Observability
-
-In production applications, observability is essential for understanding how your system behaves, detecting issues early, and maintaining reliable performance.
-
-[NestJS Observe](https://observe.nestjs.com) automatically instruments your NestJS application, giving you deep visibility into your system with minimal setup:
-
-- **Distributed tracing:** Follow requests across services and understand how they flow through your system.
-- **Waterfall analysis:** Visualize request execution and identify slow operations, bottlenecks, and unexpected delays.
-- **Performance analysis:** Analyze application performance in real time and quickly pinpoint areas that need optimization.
-- **Metrics:** Track key application and infrastructure metrics to understand system health and performance trends.
-- **Logging:** Centralize and correlate logs with traces and other telemetry to make debugging easier.
-- **Error tracking:** Detect errors quickly and investigate their root causes with the surrounding context.
-- **SLA monitoring:** Track service-level objectives and identify when your application is approaching or exceeding defined thresholds.
-- **Alarms and alerts:** Set up alerts for critical errors, performance degradation, SLA violations, and other anomalies so your team can react quickly.
-
-To add it to this project, run this and approve the code it prints at [observe.nestjs.com/link](https://observe.nestjs.com/link) - signing up for free if you have no account:
+O Prisma lê `prisma.config.ts`, o contrato em `prisma/contract.prisma` e as migrations em `prisma/migrations`.
 
 ```bash
-$ npx @nestjs/observe link
+# Mostrar migrations aplicadas e pendentes
+npm run migrate:status
+
+# Aplicar migrations pendentes
+npm run migrate
+
+# Verificar a integridade do grafo de migrations
+npm run migrate:check
+
+# Regenerar contract.json e contract.d.ts após alterar o contrato
+npm run contract:emit
 ```
 
-It installs `@nestjs/observe`, wires it into `AppModule` and `main.ts`, and writes the app key and secret into `.env`, which every `nest start` script (`start`, `start:dev`, `start:debug`) then loads. In production, set `OBSERVE_APP_KEY` and `OBSERVE_APP_SECRET` in the environment instead.
-
-Or do it by hand:
+Ordem recomendada para um banco novo:
 
 ```bash
-$ npm install @nestjs/observe
+docker compose -f infra/docker-compose.yml up -d
+npm run migrate
+npm run seed
 ```
 
-Then follow the [setup guide](https://docs.nestjs.com/observability/sdk) - it takes a single import and an app key.
+## Seed de demonstração
 
-The free plan needs no payment details and covers 300,000 events a month. You can also browse the [live demo](https://www.observe-demo.nestjs.com/dashboard) first - the whole dashboard over a busy service's data, with nothing to install.
+O seed é idempotente: cria o usuário quando ausente e atualiza nome ou senha quando necessário.
 
-## Resources
+```bash
+npm run seed
+```
 
-Check out a few resources that may come in handy when working with NestJS:
+Credenciais padrão:
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Auto-instrument your application with [NestJS Observe](https://observe.nestjs.com). Distributed tracing, metrics, and logging made easy. Error tracking and performance monitoring for your NestJS applications.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+```text
+Nome: demo
+E-mail: demo@fintech.com
+Senha: Demo@123
+```
 
-## Support
+Defina `SEED_ADMIN_PASSWORD` para substituir a senha sem editar o script. Não execute o seed automaticamente em cada deploy de produção.
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+## Executar a API
 
-## Stay in touch
+```bash
+# Desenvolvimento com watch
+npm run start:dev
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+# Build de produção
+npm run build
+npm run start:prod
+```
 
-## License
+Por padrão, a API local fica disponível em `http://localhost:3100`.
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+## Autenticação e sessão
+
+Login e cadastro enviam o JWT no cookie `access_token` com:
+
+- `HttpOnly`
+- `SameSite=Lax`
+- `Secure` quando `NODE_ENV=production`
+- validade de 900 segundos
+- `Path=/`
+
+O token não é devolvido no JSON. O cliente deve enviar cookies nas requisições, por exemplo com `credentials: "include"`.
+
+```text
+POST /auth/login
+Content-Type: application/json
+
+{
+  "email": "demo@fintech.com",
+  "password": "Demo@123"
+}
+```
+
+Resposta:
+
+```json
+{
+  "user": {
+    "id": 1,
+    "email": "demo@fintech.com",
+    "name": "demo"
+  },
+  "expiresIn": 900
+}
+```
+
+`GET /auth/session` restaura o usuário a partir do cookie e retorna a validade restante do JWT.
+
+## Endpoints
+
+Rotas marcadas como protegidas exigem o cookie `access_token`.
+
+| Método | Endpoint | Acesso | Descrição |
+| --- | --- | --- | --- |
+| `GET` | `/` | Público | Verificação básica da API |
+| `POST` | `/auth/register` | Público | Criar usuário e iniciar sessão |
+| `POST` | `/auth/login` | Público | Autenticar e iniciar sessão |
+| `POST` | `/auth/logout` | Público | Limpar o cookie de sessão |
+| `GET` | `/auth/session` | Protegido | Restaurar usuário e validade restante |
+| `GET` | `/categories` | Protegido | Listar categorias próprias |
+| `POST` | `/categories` | Protegido | Criar categoria |
+| `GET` | `/categories/:id` | Protegido | Consultar categoria própria |
+| `PATCH` | `/categories/:id` | Protegido | Atualizar categoria própria |
+| `DELETE` | `/categories/:id` | Protegido | Excluir categoria própria |
+| `GET` | `/transactions` | Protegido | Listar transações próprias |
+| `POST` | `/transactions` | Protegido | Criar transação |
+| `GET` | `/transactions/:id` | Protegido | Consultar transação própria |
+| `PATCH` | `/transactions/:id` | Protegido | Atualizar transação própria |
+| `DELETE` | `/transactions/:id` | Protegido | Excluir transação própria |
+| `GET` | `/dashboard/summary` | Protegido | Saldo, entradas, saídas e top 3 categorias de despesas |
+| `GET` | `/users/:id` | Público/legado | Consultar usuário por ID |
+
+> A rota `/users/:id` não participa do fluxo principal de sessão e deve ser revisada antes de expor dados de usuários em um ambiente público.
+
+## Contratos principais
+
+### Criar categoria
+
+```json
+{
+  "name": "Infraestrutura",
+  "description": "Cloud, servidores e licenças"
+}
+```
+
+### Criar transação
+
+```json
+{
+  "name": "Servidor de produção",
+  "description": "Competência novembro",
+  "amount": "149.90",
+  "categoryId": 1,
+  "date": "2026-11-09T12:00:00.000Z",
+  "type": "EXPENSE"
+}
+```
+
+`type` aceita `INCOME` ou `EXPENSE`. Valores monetários são strings decimais para preservar precisão.
+
+### Dashboard summary
+
+```json
+{
+  "balance": "2350.10",
+  "totalIncome": "5000.00",
+  "totalExpenses": "2649.90",
+  "topExpenseCategories": [
+    {
+      "categoryId": 1,
+      "categoryName": "Infraestrutura",
+      "total": "1499.90"
+    }
+  ]
+}
+```
+
+## Testes e qualidade
+
+```bash
+# Testes unitários
+npm test
+
+# Testes em modo watch
+npm run test:watch
+
+# Cobertura
+npm run test:cov
+
+# Testes end-to-end
+npm run test:e2e
+
+# Análise estática
+npm run lint
+
+# Formatação
+npm run format
+
+# Build
+npm run build
+```
+
+Os testes unitários cobrem autenticação, expiração do JWT, categorias, transações e validações de DTOs.
+
+## Deploy na Vercel
+
+Crie um projeto Vercel específico para a API:
+
+```text
+Root Directory: backend
+Framework Preset: NestJS
+Install Command: npm ci
+Build Command: npm run build
+Output Directory: vazio
+```
+
+Variáveis mínimas em produção:
+
+```env
+NODE_ENV=production
+DATABASE_URL=postgresql://...
+JWT_SECRET=...
+CLIENT_ORIGIN=https://seu-frontend.example.com
+```
+
+Não configure `dist` como Output Directory: o NestJS deve ser publicado como Vercel Function, não como site estático. Para o cookie `SameSite=Lax`, prefira frontend e API em domínios pertencentes ao mesmo site ou use um proxy same-origin.
+
+Execute migrations e seed de forma deliberada no banco de produção; não os acople automaticamente a todos os Preview Deployments.
