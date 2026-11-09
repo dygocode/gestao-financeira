@@ -7,6 +7,7 @@ import { UserModule } from './user/user.module.js';
 import { PrismaModule } from './prisma/prisma.module.js';
 import { CategoryModule } from './category/category.module.js';
 import { TransactionModule } from './transaction/transaction.module.js';
+import { DashboardModule } from './dashboard/dashboard.module.js';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { TransactionModule } from './transaction/transaction.module.js';
     PrismaModule,
     CategoryModule,
     TransactionModule,
+    DashboardModule,
   ],
   controllers: [AppController],
   providers: [AppService],
