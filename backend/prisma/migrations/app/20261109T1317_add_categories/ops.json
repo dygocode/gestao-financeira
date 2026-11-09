@@ -1,0 +1,151 @@
+[
+  {
+    "id": "table.Category",
+    "label": "Create table \"Category\"",
+    "summary": "Creates table \"Category\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "Category"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"Category\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Category\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"Category\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"Category\"",
+        "sql": "CREATE TABLE \"public\".\"Category\" (\n  \"createdAt\" timestamptz(3) DEFAULT (now()) NOT NULL,\n  \"description\" text,\n  \"id\" SERIAL NOT NULL,\n  \"name\" text NOT NULL,\n  \"updatedAt\" timestamptz(3) NOT NULL,\n  \"userId\" int4 NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"Category\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"Category\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"Category\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "index.Category.Category_userId_idx_a489d58a",
+    "label": "Create index \"Category_userId_idx_a489d58a\" on \"Category\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "Category_userId_idx_a489d58a",
+        "table": "Category"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Category_userId_idx_a489d58a\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Category_userId_idx_a489d58a\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"Category_userId_idx_a489d58a\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Category_userId_idx_a489d58a\"",
+        "sql": "CREATE INDEX \"Category_userId_idx_a489d58a\" ON \"public\".\"Category\" (\"userId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Category_userId_idx_a489d58a\" exists on \"Category\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"Category_userId_idx_a489d58a\"",
+          "i",
+          "I",
+          "\"public\".\"Category\"",
+          "btree",
+          "[\"userId\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.Category.Category_userId_fkey",
+    "label": "Add foreign key \"Category_userId_fkey\" on \"Category\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "Category_userId_fkey",
+        "table": "Category"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"Category_userId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Category_userId_fkey",
+          "public",
+          "\"public\".\"Category\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"Category_userId_fkey\" on \"Category\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"Category_userId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"Category\"\nADD CONSTRAINT \"Category_userId_fkey\"\nFOREIGN KEY (\"userId\")\nREFERENCES \"public\".\"User\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"Category_userId_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "Category_userId_fkey",
+          "public",
+          "\"public\".\"Category\"",
+          "f",
+          "[\"userId\"]",
+          "\"public\".\"User\"",
+          "[\"id\"]",
+          "c",
+          "a"
+        ]
+      }
+    ]
+  }
+]

@@ -1,0 +1,1 @@
+import type{Route}from"./+types/transactions";import{TransactionsPage}from"~/modules/transactions/pages/transactions-page";export function meta({}:Route.MetaArgs){return[{title:"Transações | Gestão Financeira"}]};export default TransactionsPage;

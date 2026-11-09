@@ -1,0 +1,2 @@
+import { apiFetch } from "~/shared/lib/http/api-client"; import type { Category,CategoryInput } from "../types/category";
+export const categoryService={list:(signal?:AbortSignal)=>apiFetch<Category[]>("/categories",{signal}),create:(input:CategoryInput)=>apiFetch<Category>("/categories",{method:"POST",body:JSON.stringify(input)}),update:(id:number,input:CategoryInput)=>apiFetch<Category>(`/categories/${id}`,{method:"PATCH",body:JSON.stringify(input)}),remove:(id:number)=>apiFetch<void>(`/categories/${id}`,{method:"DELETE"})};

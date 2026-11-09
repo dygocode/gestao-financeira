@@ -1,0 +1,3 @@
+export const AUTH_COOKIE_NAME = 'access_token';
+export const SESSION_DURATION_SECONDS = 15 * 60;
+export const SESSION_DURATION_MS = SESSION_DURATION_SECONDS * 1000;

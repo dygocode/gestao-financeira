@@ -1,0 +1,28 @@
+.shell { min-height: 100vh; display: grid; grid-template-columns: 260px minmax(0, 1fr); background: #f8fafc; transition: grid-template-columns .2s ease; }
+.collapsed { grid-template-columns: 76px minmax(0,1fr); }
+.sidebar { position: sticky; top: 0; height: 100vh; display: flex; flex-direction: column; border-right: 1px solid #dbe3ec; background: #fff; z-index: 30; overflow: hidden; }
+.brand { height: 64px; display: flex; align-items: center; gap: 11px; padding: 0 20px; border-bottom: 1px solid #e2e8f0; color: var(--primary); white-space: nowrap; }
+.brandMark { flex: 0 0 auto; display: grid; place-items: center; width: 34px; height: 34px; border-radius: 6px; background: var(--primary); color: white; }
+.brandText { font: 700 17px/24px "Space Grotesk", sans-serif; }
+.nav { display: grid; gap: 4px; padding: 18px 12px; }
+.navItem { height: 40px; display: flex; align-items: center; gap: 12px; padding: 0 12px; border-radius: 4px; color: #475569; font-size: 14px; font-weight: 600; white-space: nowrap; }
+.navItem:hover { background: #f1f5f9; color: var(--primary); }
+.navItem.active { background: #eaf3fb; color: var(--primary); box-shadow: 0 0 1px 1px var(--secondary) }
+.sidebarFooter { margin-top: auto; display: grid; gap: 10px; padding: 14px 12px; border-top: 1px solid #e2e8f0; }
+.securityNote { padding: 10px 12px; border-radius: 4px; background: #f8fafc; white-space: nowrap; }
+.securityNote span,.securityNote small { display: block; } .securityNote span { font-size: 12px; font-weight: 700; color: #334155; } .securityNote small { margin-top: 2px; font-size: 11px; color: #64748b; }
+.collapseButton { height: 36px; display: flex; align-items: center; gap: 12px; border: 0; padding: 0 12px; border-radius: 4px; background: transparent; color: #64748b; white-space: nowrap; }
+.collapseButton:hover { background: #f1f5f9; color: var(--primary); }
+.collapsed .brandText,.collapsed .navItem span,.collapsed .securityNote,.collapsed .collapseButton span { opacity: 0; pointer-events: none; }
+.workspace { min-width: 0; }
+.topbar { position: sticky; top: 0; z-index: 20; height: 64px; display: flex; align-items: center; justify-content: space-between; padding: 0 24px; border-bottom: 1px solid #dbe3ec; background: rgba(255,255,255,.94); backdrop-filter: blur(10px); }
+.topbarStart,.topbarActions,.userBlock { display: flex; align-items: center; } .topbarStart { gap: 12px; } .topbarActions { gap: 10px; }
+.topbarStart strong { display: block; font: 600 16px/21px "Space Grotesk", sans-serif; color: #1e293b; }
+.contextLabel { display: block; font-size: 10px; color: #64748b; text-transform: uppercase; letter-spacing: .08em; }
+.avatar { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; background: var(--primary); color: white; font-size: 11px; font-weight: 700; }
+.userBlock { gap: 9px; padding: 0 8px; }.userText strong,.userText small { display: block; }.userText strong { font-size: 12px; }.userText small { max-width: 170px; overflow: hidden; text-overflow: ellipsis; font-size: 10px; color: #64748b; }
+.logoutButton,.menuButton,.mobileClose { display: grid; place-items: center; width: 36px; height: 36px; border: 1px solid #e2e8f0; border-radius: 4px; background: white; color: #475569; }.logoutButton:hover { background: #f1f5f9; color: var(--primary); }
+.menuButton,.mobileClose { display: none; }
+.content { width: min(100%, 1600px); margin: 0 auto; padding: 24px; }
+.backdrop { display: none; }
+@media(max-width: 900px) { .shell,.collapsed { grid-template-columns: 1fr; } .sidebar { position: fixed; left: 0; transform: translateX(-100%); width: 260px; transition: transform .2s ease; box-shadow: var(--shadow-modal); }.sidebar.mobileOpen { transform: translateX(0); }.backdrop { display: block; position: fixed; inset: 0; z-index: 25; border: 0; background: rgba(10,60,110,.35); }.menuButton,.mobileClose { display: grid; }.mobileClose { margin-left: auto; }.content { padding: 18px 14px 28px; }.topbar { padding: 0 14px; }.userText { display: none; } }

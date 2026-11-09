@@ -1,0 +1,134 @@
+import { ArrowLeft } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Link, useNavigate, useParams } from "react-router";
+import { useCategories } from "~/modules/categories/hooks/use-categories";
+import { PageHeader } from "~/shared/components/page-header";
+import { StatePanel } from "~/shared/components/state-panel";
+import { isAbortError } from "~/shared/lib/http/api-client";
+import { useUiStore } from "~/shared/stores/use-ui-store";
+import { TransactionForm } from "../components/transaction-form";
+import type { TransactionFormData } from "../schemas/transaction.schema";
+import { transactionService } from "../services/transaction.service";
+import type { Transaction, TransactionInput } from "../types/transaction";
+import styles from "./transaction-form-page.module.css";
+
+export function TransactionFormPage({ mode }: { mode: "create" | "edit" }) {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const notify = useUiStore((state) => state.notify);
+  const {
+    categories,
+    loading: categoriesLoading,
+    error: categoriesError,
+  } = useCategories();
+  const [transaction, setTransaction] = useState<Transaction | null>(null);
+  const [loading, setLoading] = useState(mode === "edit");
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (mode !== "edit") return;
+
+    const numericId = Number(id);
+    if (!Number.isInteger(numericId)) {
+      setError("Identificador de transação inválido.");
+      setLoading(false);
+      return;
+    }
+
+    const controller = new AbortController();
+    transactionService
+      .get(numericId, controller.signal)
+      .then((result) => {
+        if (controller.signal.aborted) return;
+        setTransaction(result);
+        setError(null);
+      })
+      .catch((error: unknown) => {
+        if (isAbortError(error, controller.signal)) return;
+        setError(
+          error instanceof Error
+            ? error.message
+            : "Falha ao carregar transação.",
+        );
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setLoading(false);
+      });
+
+    return () => controller.abort();
+  }, [id, mode]);
+
+  const submit = async (data: TransactionFormData) => {
+    const input: TransactionInput = {
+      ...data,
+      description: data.description || null,
+      amount: data.amount.replace(",", "."),
+      date: `${data.date}T12:00:00.000Z`,
+    };
+
+    try {
+      if (mode === "edit" && transaction) {
+        await transactionService.update(transaction.id, input);
+      } else {
+        await transactionService.create(input);
+      }
+      notify(
+        mode === "edit"
+          ? "Transação atualizada."
+          : "Transação registrada.",
+      );
+      navigate("/transactions");
+    } catch (error) {
+      notify(
+        error instanceof Error
+          ? error.message
+          : "Falha ao salvar transação.",
+        "error",
+      );
+      throw error;
+    }
+  };
+
+  const busy = loading || categoriesLoading;
+
+  return (
+    <>
+      <PageHeader
+        eyebrow="Movimentações"
+        title={mode === "edit" ? "Editar transação" : "Nova transação"}
+        description="Registre valores com precisão e classifique a movimentação corretamente."
+        actions={
+          <Link className={styles.back} to="/transactions">
+            <ArrowLeft size={15} />Voltar
+          </Link>
+        }
+      />
+      {busy ? (
+        <StatePanel state="loading" />
+      ) : error || categoriesError ? (
+        <StatePanel
+          state="error"
+          description={error || categoriesError || undefined}
+        />
+      ) : categories.length === 0 ? (
+        <StatePanel
+          state="empty"
+          title="Cadastre uma categoria primeiro"
+          description="Toda transação precisa estar vinculada a uma categoria sua."
+          action={
+            <Link className={styles.primaryLink} to="/categories">
+              Ir para categorias
+            </Link>
+          }
+        />
+      ) : (
+        <TransactionForm
+          transaction={transaction}
+          categories={categories}
+          onSubmit={submit}
+          onCancel={() => navigate("/transactions")}
+        />
+      )}
+    </>
+  );
+}

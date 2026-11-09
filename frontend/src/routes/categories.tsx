@@ -1,0 +1,1 @@
+import type{Route}from"./+types/categories";import{CategoriesPage}from"~/modules/categories/pages/categories-page";export function meta({}:Route.MetaArgs){return[{title:"Categorias | Gestão Financeira"}]};export default CategoriesPage;

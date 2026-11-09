@@ -1,0 +1,299 @@
+[
+  {
+    "id": "table.Transaction",
+    "label": "Create table \"Transaction\"",
+    "summary": "Creates table \"Transaction\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "Transaction"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"Transaction\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Transaction\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"Transaction\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"Transaction\"",
+        "sql": "CREATE TABLE \"public\".\"Transaction\" (\n  \"amount\" numeric(14,2) NOT NULL,\n  \"categoryId\" int4 NOT NULL,\n  \"createdAt\" timestamptz(3) DEFAULT (now()) NOT NULL,\n  \"date\" timestamptz(3) NOT NULL,\n  \"description\" text,\n  \"id\" SERIAL NOT NULL,\n  \"name\" text NOT NULL,\n  \"type\" text NOT NULL,\n  \"updatedAt\" timestamptz(3) NOT NULL,\n  \"userId\" int4 NOT NULL,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"Transaction_type_check_5d925dfc\" CHECK (\"type\" IN ('INCOME', 'EXPENSE'))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"Transaction\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"Transaction\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"Transaction\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "index.Transaction.Transaction_categoryId_idx_15c304f2",
+    "label": "Create index \"Transaction_categoryId_idx_15c304f2\" on \"Transaction\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "Transaction_categoryId_idx_15c304f2",
+        "table": "Transaction"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Transaction_categoryId_idx_15c304f2\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Transaction_categoryId_idx_15c304f2\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"Transaction_categoryId_idx_15c304f2\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Transaction_categoryId_idx_15c304f2\"",
+        "sql": "CREATE INDEX \"Transaction_categoryId_idx_15c304f2\" ON \"public\".\"Transaction\" (\"categoryId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Transaction_categoryId_idx_15c304f2\" exists on \"Transaction\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"Transaction_categoryId_idx_15c304f2\"",
+          "i",
+          "I",
+          "\"public\".\"Transaction\"",
+          "btree",
+          "[\"categoryId\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.Transaction.Transaction_date_idx_b4ca319c",
+    "label": "Create index \"Transaction_date_idx_b4ca319c\" on \"Transaction\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "Transaction_date_idx_b4ca319c",
+        "table": "Transaction"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Transaction_date_idx_b4ca319c\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Transaction_date_idx_b4ca319c\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"Transaction_date_idx_b4ca319c\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Transaction_date_idx_b4ca319c\"",
+        "sql": "CREATE INDEX \"Transaction_date_idx_b4ca319c\" ON \"public\".\"Transaction\" (\"date\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Transaction_date_idx_b4ca319c\" exists on \"Transaction\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"Transaction_date_idx_b4ca319c\"",
+          "i",
+          "I",
+          "\"public\".\"Transaction\"",
+          "btree",
+          "[\"date\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.Transaction.Transaction_userId_idx_a489d58a",
+    "label": "Create index \"Transaction_userId_idx_a489d58a\" on \"Transaction\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "Transaction_userId_idx_a489d58a",
+        "table": "Transaction"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Transaction_userId_idx_a489d58a\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Transaction_userId_idx_a489d58a\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"Transaction_userId_idx_a489d58a\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Transaction_userId_idx_a489d58a\"",
+        "sql": "CREATE INDEX \"Transaction_userId_idx_a489d58a\" ON \"public\".\"Transaction\" (\"userId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Transaction_userId_idx_a489d58a\" exists on \"Transaction\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"Transaction_userId_idx_a489d58a\"",
+          "i",
+          "I",
+          "\"public\".\"Transaction\"",
+          "btree",
+          "[\"userId\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.Transaction.Transaction_categoryId_fkey",
+    "label": "Add foreign key \"Transaction_categoryId_fkey\" on \"Transaction\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "Transaction_categoryId_fkey",
+        "table": "Transaction"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"Transaction_categoryId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Transaction_categoryId_fkey",
+          "public",
+          "\"public\".\"Transaction\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"Transaction_categoryId_fkey\" on \"Transaction\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"Transaction_categoryId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"Transaction\"\nADD CONSTRAINT \"Transaction_categoryId_fkey\"\nFOREIGN KEY (\"categoryId\")\nREFERENCES \"public\".\"Category\" (\"id\")\nON DELETE RESTRICT"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"Transaction_categoryId_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "Transaction_categoryId_fkey",
+          "public",
+          "\"public\".\"Transaction\"",
+          "f",
+          "[\"categoryId\"]",
+          "\"public\".\"Category\"",
+          "[\"id\"]",
+          "r",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.Transaction.Transaction_userId_fkey",
+    "label": "Add foreign key \"Transaction_userId_fkey\" on \"Transaction\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "Transaction_userId_fkey",
+        "table": "Transaction"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"Transaction_userId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Transaction_userId_fkey",
+          "public",
+          "\"public\".\"Transaction\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"Transaction_userId_fkey\" on \"Transaction\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"Transaction_userId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"Transaction\"\nADD CONSTRAINT \"Transaction_userId_fkey\"\nFOREIGN KEY (\"userId\")\nREFERENCES \"public\".\"User\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"Transaction_userId_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "Transaction_userId_fkey",
+          "public",
+          "\"public\".\"Transaction\"",
+          "f",
+          "[\"userId\"]",
+          "\"public\".\"User\"",
+          "[\"id\"]",
+          "c",
+          "a"
+        ]
+      }
+    ]
+  }
+]
