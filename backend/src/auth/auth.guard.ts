@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import type { AuthenticatedRequest, AuthenticatedUser } from './auth.types.js';
+import { AUTH_COOKIE_NAME } from './auth.constants.js';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -39,11 +40,7 @@ export class AuthGuard implements CanActivate {
   }
 
   private extractToken(request: AuthenticatedRequest) {
-    const [type, token, extra] =
-      request.headers.authorization?.split(' ') ?? [];
-
-    return type?.toLowerCase() === 'bearer' && token && !extra
-      ? token
-      : undefined;
+    const token: unknown = request.cookies?.[AUTH_COOKIE_NAME];
+    return typeof token === 'string' && token ? token : undefined;
   }
 }

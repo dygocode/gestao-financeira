@@ -9,6 +9,7 @@ import * as argon2 from 'argon2';
 import { UserService } from '../user/user.service.js';
 import { LoginDto } from './dto/login/login.dto.js';
 import { RegisterDto } from './dto/register/register.dto.js';
+import { SESSION_DURATION_SECONDS } from './auth.constants.js';
 
 @Injectable()
 export class AuthService {
@@ -77,7 +78,11 @@ export class AuthService {
       email: user.email,
     });
 
-    return { accessToken, user };
+    return {
+      accessToken,
+      user,
+      expiresIn: SESSION_DURATION_SECONDS,
+    };
   }
 
   private normalizeEmail(email: string) {

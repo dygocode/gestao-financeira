@@ -5,6 +5,7 @@ import { UserModule } from '../user/user.module.js';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { AuthGuard } from './auth.guard.js';
+import { SESSION_DURATION_SECONDS } from './auth.constants.js';
 
 @Module({
   imports: [
@@ -14,7 +15,7 @@ import { AuthGuard } from './auth.guard.js';
       useFactory: (configService: ConfigService) => ({
         secret: configService.getOrThrow<string>('JWT_SECRET'),
         signOptions: {
-          expiresIn: '15m',
+          expiresIn: SESSION_DURATION_SECONDS,
           algorithm: 'HS256',
         },
       }),
