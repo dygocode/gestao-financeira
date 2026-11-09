@@ -8,7 +8,7 @@ Interface React + TypeScript para gestão financeira corporativa, integrada à A
 - **Fetch nativo**: centralizado em `src/shared/lib/http/api-client.ts`, com URL por ambiente, `credentials: include`, suporte a `AbortSignal`, tratamento de 204 e erros HTTP tipados.
 - **React Hook Form + Zod**: validação declarativa dos formulários sem duplicar estado local.
 - **CSS Modules + Tailwind**: Tailwind fornece a base de build; tokens globais e módulos CSS isolam layouts e componentes.
-- **SPA mode**: o backend não possui endpoint para restaurar a sessão HttpOnly (`/auth/session` ou `/users/me`). A sessão fica em memória e um reload exige novo login, conforme a política atual.
+- **SPA mode**: a sessão permanece em cookie HttpOnly e é restaurada com `GET /auth/session`; o JWT nunca é exposto ao JavaScript.
 
 ## Estrutura
 
@@ -62,6 +62,4 @@ npm run build
 - Autenticação, categorias e CRUD de transações estão integrados.
 - `GET /transactions` ainda retorna um array sem paginação. O frontend envia os parâmetros previstos e aplica um adapter local temporário para filtros e páginas.
 - `GET /dashboard/summary` ainda não existe. A tela consome somente esse contrato e mostra indisponibilidade; totais financeiros não são recalculados no navegador.
-- Não há endpoint para restaurar o usuário pelo cookie após reload.
-
-Esses três itens devem ser concluídos no backend para a experiência definitiva de produção.
+Os contratos de dashboard e paginação devem ser concluídos no backend para a experiência definitiva de produção.

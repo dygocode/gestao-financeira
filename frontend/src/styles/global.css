@@ -51,6 +51,13 @@ button { cursor: pointer; }
 .route-error__code { margin: 0; color: var(--secondary) !important; font-weight: 700; }
 .route-error a { margin: 16px auto 0; color: var(--primary); font-weight: 700; }
 
+.session-loading { min-height: 100vh; display: grid; place-items: center; align-content: center; gap: 9px; padding: 24px; background: var(--surface); text-align: center; color: var(--on-surface-variant); }
+.session-loading__brand { display: grid; place-items: center; width: 42px; height: 42px; margin-bottom: 8px; border-radius: 7px; background: var(--primary); color: white; }
+.session-loading__spinner { color: var(--secondary); animation: session-spin 1s linear infinite; }
+.session-loading strong { color: var(--on-surface); font: 600 16px/22px "Space Grotesk", sans-serif; }
+.session-loading p { margin: 0; font-size: 13px; }
+@keyframes session-spin { to { transform: rotate(360deg); } }
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
 }

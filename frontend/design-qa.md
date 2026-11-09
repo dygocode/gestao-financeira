@@ -37,7 +37,7 @@ No actionable P0, P1 or P2 visual mismatches were found in the inspected states.
 
 ## Open questions / product constraints
 
-- The API has no session restoration endpoint, so a full reload returns the user to login despite the HttpOnly cookie.
+- Session restoration is handled by `GET /auth/session` before protected routing is evaluated.
 - `/dashboard/summary` is not yet implemented. The frontend intentionally shows an API-unavailable state instead of calculating financial totals locally.
 - Transaction filtering and pagination use a compatibility adapter while the backend still returns an unpaginated array.
 
