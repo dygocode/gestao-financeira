@@ -2,6 +2,8 @@
 
 ### Uma plataforma interna para registrar e acompanhar as movimentações financeiras por categoria - despesas operacionais, receitas de clientes, reembolsos, entre outros.
 
+<img src=".github/summary.png"></img>
+
 ---
 
 *Link do deploy público*
