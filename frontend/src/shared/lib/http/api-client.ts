@@ -15,6 +15,17 @@ export class ApiError extends Error {
   }
 }
 
+export function isAbortError(error: unknown, signal?: AbortSignal | null) {
+  if (signal?.aborted) return true;
+
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "name" in error &&
+    error.name === "AbortError"
+  );
+}
+
 export async function apiFetch<T>(
   path: string,
   options: RequestInit = {},
@@ -26,7 +37,7 @@ export async function apiFetch<T>(
   try {
     response = await fetch(`${API_URL}${path}`, { ...options, headers, credentials: "include" });
   } catch (error) {
-    if (error instanceof DOMException && error.name === "AbortError") throw error;
+    if (isAbortError(error, options.signal)) throw error;
     throw new ApiError(0, { message: "Não foi possível conectar à API." });
   }
 
@@ -35,7 +46,8 @@ export async function apiFetch<T>(
   let data: unknown;
   try {
     data = response.status === 204 ? undefined : hasJson ? await response.json() : await response.text();
-  } catch {
+  } catch (error) {
+    if (isAbortError(error, options.signal)) throw error;
     throw new ApiError(response.status, { message: "A API retornou uma resposta inválida." });
   }
 

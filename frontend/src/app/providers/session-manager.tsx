@@ -2,6 +2,7 @@ import { Landmark, LoaderCircle } from "lucide-react";
 import { useEffect, type ReactNode } from "react";
 import { authService } from "~/modules/auth/services/auth.service";
 import { useAuthStore } from "~/modules/auth/stores/use-auth-store";
+import { isAbortError } from "~/shared/lib/http/api-client";
 
 export function SessionManager({ children }: { children: ReactNode }) {
   const { status, expiresAt, setSession, clearSession } = useAuthStore();
@@ -13,7 +14,7 @@ export function SessionManager({ children }: { children: ReactNode }) {
       .session(controller.signal)
       .then(setSession)
       .catch((error: unknown) => {
-        if (error instanceof DOMException && error.name === "AbortError") return;
+        if (isAbortError(error, controller.signal)) return;
         clearSession();
       });
 
