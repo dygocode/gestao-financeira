@@ -17,8 +17,9 @@ import { CurrentUser } from '../auth/current-user.decorator.js';
 import type { AuthenticatedUser } from '../auth/auth.types.js';
 import { CreateTransactionDto } from './dto/create-transaction.dto.js';
 import { UpdateTransactionDto } from './dto/update-transaction.dto.js';
+import { CsrfGuard } from '../auth/csrf.guard.js';
 
-@UseGuards(AuthGuard)
+@UseGuards(AuthGuard, CsrfGuard)
 @Controller('transactions')
 export class TransactionController {
   constructor(private readonly transactionService: TransactionService) {}

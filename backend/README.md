@@ -152,8 +152,8 @@ Por padrão, a API local fica disponível em `http://localhost:3100`.
 Login e cadastro enviam o JWT no cookie `access_token` com:
 
 - `HttpOnly`
-- `SameSite=Lax`
-- `Secure` quando `NODE_ENV=production`
+- `SameSite=None` e `Secure` quando `NODE_ENV=production`
+- `SameSite=Lax` sem `Secure` no desenvolvimento local
 - validade de 900 segundos
 - `Path=/`
 
@@ -178,11 +178,12 @@ Resposta:
     "email": "demo@fintech.com",
     "name": "demo"
   },
-  "expiresIn": 900
+  "expiresIn": 900,
+  "csrfToken": "token-csrf-aleatorio"
 }
 ```
 
-`GET /auth/session` restaura o usuário a partir do cookie e retorna a validade restante do JWT.
+`GET /auth/session` restaura o usuário a partir do cookie e retorna a validade restante e o token CSRF. O frontend mantém o token CSRF apenas em memória e o envia no header `X-CSRF-Token` em `POST`, `PATCH` e `DELETE`. O backend compara esse header ao claim assinado dentro do JWT antes de permitir a mutação.
 
 ## Endpoints
 

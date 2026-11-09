@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as argon2 from 'argon2';
+import { randomBytes } from 'node:crypto';
 import { UserService } from '../user/user.service.js';
 import { LoginDto } from './dto/login/login.dto.js';
 import { RegisterDto } from './dto/register/register.dto.js';
@@ -83,21 +84,25 @@ export class AuthService {
     return {
       user,
       expiresIn: Math.max(0, authenticatedUser.exp - nowInSeconds),
+      csrfToken: authenticatedUser.csrf,
     };
   }
 
   private async createAuthResponse<T extends { id: number; email: string }>(
     user: T,
   ) {
+    const csrfToken = randomBytes(32).toString('hex');
     const accessToken = await this.jwtService.signAsync({
       sub: user.id,
       email: user.email,
+      csrf: csrfToken,
     });
 
     return {
       accessToken,
       user,
       expiresIn: SESSION_DURATION_SECONDS,
+      csrfToken,
     };
   }
 

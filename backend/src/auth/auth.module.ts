@@ -6,6 +6,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { AuthGuard } from './auth.guard.js';
 import { SESSION_DURATION_SECONDS } from './auth.constants.js';
+import { CsrfGuard } from './csrf.guard.js';
 
 @Module({
   imports: [
@@ -22,7 +23,7 @@ import { SESSION_DURATION_SECONDS } from './auth.constants.js';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, AuthGuard],
-  exports: [AuthGuard, JwtModule],
+  providers: [AuthService, AuthGuard, CsrfGuard],
+  exports: [AuthGuard, CsrfGuard, JwtModule],
 })
 export class AuthModule {}

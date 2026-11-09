@@ -31,6 +31,8 @@ export class AuthGuard implements CanActivate {
       if (
         !Number.isInteger(payload.sub) ||
         typeof payload.email !== 'string' ||
+        typeof payload.csrf !== 'string' ||
+        payload.csrf.length < 32 ||
         !Number.isInteger(payload.exp)
       ) {
         throw new UnauthorizedException('Token de acesso inválido');

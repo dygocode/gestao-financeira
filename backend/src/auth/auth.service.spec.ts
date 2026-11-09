@@ -79,6 +79,7 @@ describe('AuthService login', () => {
     const payload = await jwtService.verifyAsync<{
       sub: number;
       email: string;
+      csrf: string;
       iat: number;
       exp: number;
     }>(result.accessToken);
@@ -86,6 +87,8 @@ describe('AuthService login', () => {
     expect(findCredentialsByEmail).toHaveBeenCalledWith('admin@fintech.com');
     expect(payload.sub).toBe(4);
     expect(payload.email).toBe('admin@fintech.com');
+    expect(payload.csrf).toBe(result.csrfToken);
+    expect(result.csrfToken).toHaveLength(64);
     expect(payload.exp - payload.iat).toBe(SESSION_DURATION_SECONDS);
     expect(result.expiresIn).toBe(SESSION_DURATION_SECONDS);
   });
