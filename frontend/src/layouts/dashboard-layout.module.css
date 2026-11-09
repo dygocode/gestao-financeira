@@ -9,11 +9,9 @@
 .navItem:hover { background: #f1f5f9; color: var(--primary); }
 .navItem.active { background: #eaf3fb; color: var(--primary); box-shadow: 0 0 1px 1px var(--secondary) }
 .sidebarFooter { margin-top: auto; display: grid; gap: 10px; padding: 14px 12px; border-top: 1px solid #e2e8f0; }
-.securityNote { padding: 10px 12px; border-radius: 4px; background: #f8fafc; white-space: nowrap; }
-.securityNote span,.securityNote small { display: block; } .securityNote span { font-size: 12px; font-weight: 700; color: #334155; } .securityNote small { margin-top: 2px; font-size: 11px; color: #64748b; }
 .collapseButton { height: 36px; display: flex; align-items: center; gap: 12px; border: 0; padding: 0 12px; border-radius: 4px; background: transparent; color: #64748b; white-space: nowrap; }
 .collapseButton:hover { background: #f1f5f9; color: var(--primary); }
-.collapsed .brandText,.collapsed .navItem span,.collapsed .securityNote,.collapsed .collapseButton span { opacity: 0; pointer-events: none; }
+.collapsed .brandText,.collapsed .navItem span,.collapsed .collapseButton span { opacity: 0; pointer-events: none; }
 .workspace { min-width: 0; }
 .topbar { position: sticky; top: 0; z-index: 20; height: 64px; display: flex; align-items: center; justify-content: space-between; padding: 0 24px; border-bottom: 1px solid #dbe3ec; background: rgba(255,255,255,.94); backdrop-filter: blur(10px); }
 .topbarStart,.topbarActions,.userBlock { display: flex; align-items: center; } .topbarStart { gap: 12px; } .topbarActions { gap: 10px; }
