@@ -6,4 +6,17 @@ model User {
   passwordHash String
   createdAt    DateTime           @default(now()) @onCreate(now())
   updatedAt    temporal.UpdatedAt
+  categories   Category[]
+}
+
+model Category {
+  id          Int                @id @default(autoincrement())
+  name        String
+  description String?
+  userId      Int
+  user        User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime           @default(now()) @onCreate(now())
+  updatedAt   temporal.UpdatedAt
+
+  @@index([userId])
 }

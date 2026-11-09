@@ -1,0 +1,49 @@
+import {
+  CanActivate,
+  ExecutionContext,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+import type { AuthenticatedRequest, AuthenticatedUser } from './auth.types.js';
+
+@Injectable()
+export class AuthGuard implements CanActivate {
+  constructor(private readonly jwtService: JwtService) {}
+
+  async canActivate(context: ExecutionContext) {
+    const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
+    const token = this.extractToken(request);
+
+    if (!token) {
+      throw new UnauthorizedException('Token de acesso não informado');
+    }
+
+    try {
+      const payload = await this.jwtService.verifyAsync<AuthenticatedUser>(
+        token,
+        {
+          algorithms: ['HS256'],
+        },
+      );
+
+      if (!Number.isInteger(payload.sub) || typeof payload.email !== 'string') {
+        throw new UnauthorizedException('Token de acesso inválido');
+      }
+
+      request.user = payload;
+      return true;
+    } catch {
+      throw new UnauthorizedException('Token de acesso inválido ou expirado');
+    }
+  }
+
+  private extractToken(request: AuthenticatedRequest) {
+    const [type, token, extra] =
+      request.headers.authorization?.split(' ') ?? [];
+
+    return type?.toLowerCase() === 'bearer' && token && !extra
+      ? token
+      : undefined;
+  }
+}

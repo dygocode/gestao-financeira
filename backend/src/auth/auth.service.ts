@@ -61,7 +61,6 @@ export class AuthService {
     const user = {
       id: credentials.id,
       email: credentials.email,
-      username: credentials.username,
       name: credentials.name,
       createdAt: credentials.createdAt,
       updatedAt: credentials.updatedAt,
