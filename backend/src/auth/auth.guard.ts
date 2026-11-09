@@ -28,7 +28,11 @@ export class AuthGuard implements CanActivate {
         },
       );
 
-      if (!Number.isInteger(payload.sub) || typeof payload.email !== 'string') {
+      if (
+        !Number.isInteger(payload.sub) ||
+        typeof payload.email !== 'string' ||
+        !Number.isInteger(payload.exp)
+      ) {
         throw new UnauthorizedException('Token de acesso inválido');
       }
 

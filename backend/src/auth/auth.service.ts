@@ -10,6 +10,7 @@ import { UserService } from '../user/user.service.js';
 import { LoginDto } from './dto/login/login.dto.js';
 import { RegisterDto } from './dto/register/register.dto.js';
 import { SESSION_DURATION_SECONDS } from './auth.constants.js';
+import type { AuthenticatedUser } from './auth.types.js';
 
 @Injectable()
 export class AuthService {
@@ -68,6 +69,21 @@ export class AuthService {
     };
 
     return this.createAuthResponse(user);
+  }
+
+  async getSession(authenticatedUser: AuthenticatedUser) {
+    const user = await this.usersService.findById(authenticatedUser.sub);
+
+    if (!user) {
+      throw new UnauthorizedException('Usuário da sessão não encontrado');
+    }
+
+    const nowInSeconds = Math.floor(Date.now() / 1000);
+
+    return {
+      user,
+      expiresIn: Math.max(0, authenticatedUser.exp - nowInSeconds),
+    };
   }
 
   private async createAuthResponse<T extends { id: number; email: string }>(

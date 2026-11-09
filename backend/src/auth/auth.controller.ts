@@ -1,10 +1,12 @@
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
   Post,
   Res,
+  UseGuards,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import type { CookieOptions, Response } from 'express';
@@ -12,6 +14,9 @@ import { AuthService } from './auth.service.js';
 import { LoginDto } from './dto/login/login.dto.js';
 import { RegisterDto } from './dto/register/register.dto.js';
 import { AUTH_COOKIE_NAME, SESSION_DURATION_MS } from './auth.constants.js';
+import { AuthGuard } from './auth.guard.js';
+import type { AuthenticatedUser } from './auth.types.js';
+import { CurrentUser } from './current-user.decorator.js';
 
 @Controller('auth')
 export class AuthController {
@@ -43,6 +48,12 @@ export class AuthController {
   @HttpCode(HttpStatus.NO_CONTENT)
   logout(@Res({ passthrough: true }) response: Response) {
     response.clearCookie(AUTH_COOKIE_NAME, this.cookieOptions);
+  }
+
+  @Get('session')
+  @UseGuards(AuthGuard)
+  getSession(@CurrentUser() user: AuthenticatedUser) {
+    return this.authService.getSession(user);
   }
 
   private sendSession<T>(

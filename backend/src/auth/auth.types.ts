@@ -3,6 +3,8 @@ import type { Request } from 'express';
 export interface AuthenticatedUser {
   sub: number;
   email: string;
+  exp: number;
+  iat?: number;
 }
 
 export interface AuthenticatedRequest extends Request {
