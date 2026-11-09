@@ -1,5 +1,5 @@
 import {
-  ArrowLeftRight, ChartNoAxesCombined, FolderKanban, Landmark, LogOut, Menu, PanelLeftClose, PanelLeftOpen, Search, X,
+  ArrowLeftRight, ChartNoAxesCombined, FolderKanban, Landmark, LogOut, Menu, PanelLeftClose, PanelLeftOpen, X,
 } from "lucide-react";
 import { useState } from "react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router";
@@ -30,7 +30,7 @@ export function DashboardLayout() {
       <div className={styles.sidebarFooter}><div className={styles.securityNote}><span>Ambiente protegido</span><small>Sessão criptografada</small></div><button className={styles.collapseButton} onClick={() => setCollapsed((value) => !value)}>{collapsed ? <PanelLeftOpen size={18}/> : <PanelLeftClose size={18}/>}<span>Recolher menu</span></button></div>
     </aside>
     <div className={styles.workspace}>
-      <header className={styles.topbar}><div className={styles.topbarStart}><button className={styles.menuButton} onClick={() => setMobileOpen(true)} aria-label="Abrir menu"><Menu size={20}/></button><div><span className={styles.contextLabel}>Workspace financeiro</span><strong>{title}</strong></div></div><div className={styles.topbarActions}><button className={styles.searchButton} aria-label="Pesquisar"><Search size={18}/></button><div className={styles.userBlock}><span className={styles.avatar}>{initials(user.name,user.email)}</span><span className={styles.userText}><strong>{user.name || "Usuário"}</strong><small>{user.email}</small></span></div><button className={styles.logoutButton} onClick={logout} aria-label="Sair"><LogOut size={18}/></button></div></header>
+      <header className={styles.topbar}><div className={styles.topbarStart}><button className={styles.menuButton} onClick={() => setMobileOpen(true)} aria-label="Abrir menu"><Menu size={20}/></button><div><span className={styles.contextLabel}>Workspace financeiro</span><strong>{title}</strong></div></div><div className={styles.topbarActions}><div className={styles.userBlock}><span className={styles.avatar}>{initials(user.name,user.email)}</span><span className={styles.userText}><strong>{user.name || "Usuário"}</strong><small>{user.email}</small></span></div><button className={styles.logoutButton} onClick={logout} aria-label="Sair"><LogOut size={18}/></button></div></header>
       <main className={styles.content}><Outlet/></main>
     </div>
   </div>;
