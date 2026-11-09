@@ -10,15 +10,15 @@
 
 ## Deploy público
 
-- **Frontend:** https://frontend-gestao-financeira.vercel.app
-- **Backend:** https://backend-gestao-financeira.vercel.app
+- **Frontend:** https://frontend-amber-beta-17.vercel.app
+- **Backend:** https://gestao-financeira-8p7c.onrender.com
 
-O monorepo é publicado como dois projetos independentes na Vercel:
+O monorepo é publicado como dois serviços independentes:
 
-| Projeto | Root Directory | Variáveis principais |
-| --- | --- | --- |
-| Frontend | `frontend` | `VITE_API_URL` |
-| Backend | `backend` | `NODE_ENV`, `CLIENT_ORIGIN`, `DATABASE_URL` e `JWT_SECRET` |
+| Serviço | Plataforma | Root Directory | Build | Inicialização |
+| --- | --- | --- | --- | --- |
+| Frontend | Vercel | `frontend` | `npm run build` | SPA estática |
+| Backend | Render Web Service | `backend` | `npm ci --include=dev && npm run build` | `npm run start:prod` |
 
 Como frontend e backend podem estar em sites distintos (por exemplo, Vercel e Render), o cookie de produção utiliza `SameSite=None; Secure`. As operações mutáveis exigem também um token CSRF enviado no header `X-CSRF-Token`. Navegadores que bloqueiam cookies de terceiros ainda podem exigir domínios próprios no mesmo site ou um proxy same-origin.
 
@@ -39,7 +39,7 @@ Como frontend e backend podem estar em sites distintos (por exemplo, Vercel e Re
 | Backend | NestJS 12, TypeScript, JWT, Argon2, class-validator e class-transform |
 | Dados | PostgreSQL e Prisma ORM 8 |
 | Qualidade | Vitest, Testing Library, ESLint e Oxlint |
-| Deploy | Vercel |
+| Deploy | Vercel no frontend e Render no backend |
 
 ## Decisões técnicas
 
@@ -105,7 +105,48 @@ cp frontend/.env.example frontend/.env
 VITE_API_URL=http://localhost:3100
 ```
 
-Em produção, configure essas variáveis nos projetos da Vercel. `CLIENT_ORIGIN` deve conter a URL pública exata do frontend, e `VITE_API_URL` deve apontar para a API pública.
+### Produção — frontend na Vercel
+
+Configure em **Vercel → Project Settings → Environment Variables**:
+
+```env
+VITE_API_URL=https://gestao-financeira-8p7c.onrender.com
+```
+
+Configuração do projeto:
+
+```text
+Root Directory: frontend
+Build Command: npm run build
+```
+
+Depois de alterar `VITE_API_URL`, faça um novo deploy: variáveis `VITE_*` são incorporadas ao bundle durante o build.
+
+### Produção — backend no Render
+
+Configure em **Render → Web Service → Environment**:
+
+```env
+NODE_ENV=production
+CLIENT_ORIGIN=https://frontend-amber-beta-17.vercel.app
+DATABASE_URL=postgresql://usuario:senha@host:5432/banco
+JWT_SECRET=uma-chave-longa-forte-e-aleatoria
+SEED_ADMIN_PASSWORD=uma-senha-segura-para-o-usuario-demo
+```
+
+Configuração do Web Service:
+
+```text
+Root Directory: backend
+Runtime: Node
+Node Version: 22 ou superior
+Build Command: npm ci --include=dev && npm run build
+Start Command: npm run start:prod
+```
+
+`CLIENT_ORIGIN` deve conter somente a origem (`https://frontend-amber-beta-17.vercel.app`), sem `/dashboard` e sem barra final. `PORT` não precisa ser configurada no Render, pois a plataforma a fornece automaticamente.
+
+O `--include=dev` no build instala o Nest CLI e o TypeScript mesmo com `NODE_ENV=production`. Em runtime, `NODE_ENV=production` ativa o cookie `SameSite=None; Secure`, necessário para a comunicação entre Vercel e Render.
 
 ## Banco de dados local
 
@@ -189,9 +230,44 @@ Interface disponível em `http://localhost:5173`.
 
 ### Backend
 
+O backend possui 17 testes unitários distribuídos em oito arquivos de spec:
+
+| Área | Cenários cobertos |
+| --- | --- |
+| Aplicação | Resposta básica do `AppController` |
+| Login e JWT | Validação de e-mail e senha, rejeição de senha incorreta, normalização do e-mail e expiração do token de acesso |
+| Proteção CSRF | Métodos seguros, mutação com token válido e bloqueio de token ausente ou incorreto |
+| Categorias | Criação, atualização e exclusão com filtro pelo proprietário |
+| Transações | Criação vinculada à categoria do usuário, validação dos campos e exclusão pelo proprietário |
+| Controllers | Inicialização dos controllers com serviços e guards substituídos por mocks |
+
+Os testes usam Vitest, mocks do Prisma e, no caso da autenticação, JWT e Argon2 reais em memória. Nenhum teste unitário depende do PostgreSQL.
+
+Para executá-los:
+
 ```bash
 cd backend
+
+# Executar todos os testes unitários uma vez
 npm test
+
+# Reexecutar automaticamente durante alterações
+npm run test:watch
+
+# Gerar relatório de cobertura
+npm run test:cov
+
+# Executar somente um arquivo de teste
+npm test -- src/auth/auth.service.spec.ts
+
+# Testes end-to-end, executados separadamente
+npm run test:e2e
+```
+
+Validações adicionais do backend:
+
+```bash
+cd backend
 npm run lint
 npm run build
 ```
