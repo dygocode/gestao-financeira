@@ -2,6 +2,14 @@ import type { ApiErrorPayload } from "~/shared/types/api";
 
 const API_URL = (import.meta.env.VITE_API_URL ?? "http://localhost:3000").replace(/\/$/, "");
 
+const CSRF_HEADER_NAME = "X-CSRF-Token";
+const SAFE_METHODS = new Set(["GET", "HEAD", "OPTIONS"]);
+let csrfToken: string | null = null;
+
+export function setCsrfToken(token: string | null) {
+  csrfToken = token;
+}
+
 export class ApiError extends Error {
   constructor(
     public readonly status: number,
@@ -31,7 +39,11 @@ export async function apiFetch<T>(
   options: RequestInit = {},
 ): Promise<T> {
   const headers = new Headers(options.headers);
+  const method = (options.method ?? "GET").toUpperCase();
   if (options.body && !headers.has("Content-Type")) headers.set("Content-Type", "application/json");
+  if (!SAFE_METHODS.has(method) && csrfToken) {
+    headers.set(CSRF_HEADER_NAME, csrfToken);
+  }
 
   let response: Response;
   try {

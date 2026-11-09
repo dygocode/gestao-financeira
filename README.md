@@ -20,7 +20,7 @@ O monorepo é publicado como dois projetos independentes na Vercel:
 | Frontend | `frontend` | `VITE_API_URL` |
 | Backend | `backend` | `NODE_ENV`, `CLIENT_ORIGIN`, `DATABASE_URL` e `JWT_SECRET` |
 
-Para o cookie de autenticação `SameSite=Lax` funcionar com segurança em produção, prefira domínios próprios pertencentes ao mesmo site, por exemplo `app.exemplo.com` e `api.exemplo.com`. Se forem usados domínios cross-site distintos, será necessário revisar a política `SameSite` e implementar proteção CSRF.
+Como frontend e backend podem estar em sites distintos (por exemplo, Vercel e Render), o cookie de produção utiliza `SameSite=None; Secure`. As operações mutáveis exigem também um token CSRF enviado no header `X-CSRF-Token`. Navegadores que bloqueiam cookies de terceiros ainda podem exigir domínios próprios no mesmo site ou um proxy same-origin.
 
 ## Funcionalidades
 

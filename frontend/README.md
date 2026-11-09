@@ -8,7 +8,7 @@ Interface React + TypeScript para gestão financeira corporativa, integrada à A
 - **Fetch nativo**: centralizado em `src/shared/lib/http/api-client.ts`, com URL por ambiente, `credentials: include`, suporte a `AbortSignal`, tratamento de 204 e erros HTTP tipados.
 - **React Hook Form + Zod**: validação declarativa dos formulários sem duplicar estado local.
 - **CSS Modules + Tailwind**: Tailwind fornece a base de build; tokens globais e módulos CSS isolam layouts e componentes.
-- **SPA mode**: a sessão permanece em cookie HttpOnly e é restaurada com `GET /auth/session`; o JWT nunca é exposto ao JavaScript.
+- **SPA mode**: a sessão permanece em cookie HttpOnly e é restaurada com `GET /auth/session`; o JWT nunca é exposto ao JavaScript. O token CSRF retornado pela sessão fica apenas em memória e é enviado automaticamente nas operações mutáveis.
 
 ## Estrutura
 

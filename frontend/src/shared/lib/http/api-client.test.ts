@@ -1,4 +1,6 @@
-import { apiFetch, isAbortError } from "./api-client";
+import { apiFetch, isAbortError, setCsrfToken } from "./api-client";
+
+afterEach(() => setCsrfToken(null));
 
 describe("apiFetch", () => {
   it("envia cookies e trata respostas 204", async () => {
@@ -34,5 +36,18 @@ describe("apiFetch", () => {
     await expect(
       apiFetch("/categories", { signal: controller.signal }),
     ).rejects.toBe(abortError);
+  });
+
+  it("envia o token CSRF nas operações mutáveis", async () => {
+    const fetchMock = vi
+      .spyOn(globalThis, "fetch")
+      .mockResolvedValue(new Response(null, { status: 204 }));
+    setCsrfToken("csrf-token-from-session");
+
+    await apiFetch("/transactions/10", { method: "DELETE" });
+
+    const requestOptions = fetchMock.mock.calls[0]?.[1];
+    const headers = new Headers(requestOptions?.headers);
+    expect(headers.get("X-CSRF-Token")).toBe("csrf-token-from-session");
   });
 });
